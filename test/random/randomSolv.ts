@@ -9,7 +9,7 @@ describe('[Challenge] Random', function () {
         /** SETUP SCENARIO - NO NEED TO CHANGE ANYTHING HERE */
         [deployer, attacker] = await ethers.getSigners();
 
-        const SetupFactory = await ethers.getContractFactory('Setup', deployer);
+        const SetupFactory = await ethers.getContractFactory('SetupRandom', deployer);
         this.challenge = await SetupFactory.deploy();
 
         expect(
