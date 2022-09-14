@@ -4,7 +4,6 @@ import { HardhatUserConfig, task } from "hardhat/config";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
-import "hardhat-gas-reporter";
 import "solidity-coverage";
 import '@openzeppelin/hardhat-upgrades';
 
@@ -25,8 +24,20 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 // Go to https://hardhat.org/config/ to learn more
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.15",
+  solidity:  {
+    compilers: [
+      { version: "0.8.15" },
+      { version: "0.8.16" }
+    ],
+    },
   networks: {
+    hardhat: {
+        forking: {
+          enabled: true,
+          url: process.env.MAINNET_URL || "",
+          blockNumber: 14990000
+        }
+    },
     ropsten: {
       url: process.env.ROPSTEN_URL || "",
       accounts:
