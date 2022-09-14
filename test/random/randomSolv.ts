@@ -18,9 +18,10 @@ describe('[Challenge] Random', function () {
     });
 
     it('Exploit', async function () {
+         /** CODE YOUR EXPLOIT HERE */
         const RandomFactory = await ethers.getContractFactory('Random', attacker);
-        const RandomAddress = (await this.challenge.random());
-        const Random = RandomFactory.attach(RandomAddress);
+        const mcHelperAddress = (await this.challenge.mcHelper());
+        const Random = RandomFactory.attach(mcHelperAddress);
         await Random.solve(4);
     });
 
