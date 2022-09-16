@@ -104,3 +104,6 @@ dist
 .tern-port
 
 *.zip
+cache
+artifacts/*
+typechain/*
