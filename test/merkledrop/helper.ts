@@ -6,8 +6,8 @@ import {merkleRoot, tokenTotal, claims} from  '../../contracts/merkledrop/tree.j
 import { BigNumber, utils} from 'ethers';
 import { promise } from 'sinon';
 
-
-const amountLenth = 24;
+//lenth of uint96 in hexString
+const amountLenth = 24; 
 let result = [];
 
 export async function findNode() {
