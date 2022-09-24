@@ -9,11 +9,11 @@
 - [ ] HINT-FINANCE
 - [ ] JUST-IN-TIME
 - [ ] LOCKBOX2
-- [ ] MERKLEDROP
+- [x] [MERKLEDROP](https://mirror.xyz/0xsilas.eth/inz5Eo-7iVA-sZqNWIRavcNyieQ4bDgaZyPsmqBkk8Y)
 - [ ] OTTER-WORLD
 - [ ] OTTERSWAP
 - [x] RANDOM
-- [x] RESCUE
+- [x] [RESCUE](https://mirror.xyz/0xsilas.eth/aG7ATeBac1GABgNTsmPvaKH1BIEO7iAGc9lAMvWtXLY)
 - [ ] RIDDLE-OF-THE-SPHINX
 - [ ] SOLHANA-1
 - [ ] SOLHANA-2
