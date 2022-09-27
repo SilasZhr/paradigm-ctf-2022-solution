@@ -15,14 +15,14 @@ const amountLenth = 24;
 let result = [];
 
 export async function findNode() {
-    let node = [];
-    let knownAmounts = [];
-    for (let leaf in claims) {
+    const node = [];
+    const knownAmounts = [];
+    for (const leaf in claims) {
         knownAmounts.push(BigNumber.from(claims[leaf]["amount"]));
         let proof: string[] = claims[leaf]["proof"];
         proof = proof.slice(0);
-        for (let count in proof) {
-            let entry = proof[count];
+        for (const count in proof) {
+            const entry = proof[count];
             if (await validAmount(entry)) {
                 if (!node.includes(entry)) {
                     node.push(entry);
@@ -31,8 +31,8 @@ export async function findNode() {
         }
     }
     let amounts = [];
-    for (let count in node) {
-        let entry = node[count];
+    for (const count in node) {
+        const entry = node[count];
         amounts.push(entry.substr(-amountLenth));
     }
     amounts = amounts.map((x) => BigNumber.from("0x" + x));
@@ -56,8 +56,8 @@ async function dynamicSearch(
     if (amounts.length === 0) {
         return [];
     }
-    for (let count in amounts) {
-        let amount = amounts[count];
+    for (const count in amounts) {
+        const amount = amounts[count];
         if (amount.gt(total)) {
             continue;
         } else if (total.eq(amount)) {
@@ -67,7 +67,7 @@ async function dynamicSearch(
             return [];
         } else {
             tmp.push(amount);
-            let res = dynamicSearch(total.sub(amount), amounts.slice(1));
+            const res = dynamicSearch(total.sub(amount), amounts.slice(1));
             if (res === []) {
                 tmp = tmp.slice(-1);
                 continue;
@@ -79,7 +79,7 @@ async function dynamicSearch(
 }
 
 async function validAmount(entry: string): Promise<boolean> {
-    let tmp = entry.substr(-amountLenth);
+    const tmp = entry.substr(-amountLenth);
     return !BigNumber.from("0x" + tmp).gt(BigNumber.from(tokenTotal));
 }
 

@@ -26,7 +26,7 @@ describe("[Challenge] MerkleDrop", function () {
 
     it("Exploit", async function () {
         /** CODE YOUR EXPLOIT HERE */
-        let node = await findNode();
+        const node = await findNode();
         let results = getResult();
         results = results.map((x) => x.toHexString());
 
@@ -39,9 +39,9 @@ describe("[Challenge] MerkleDrop", function () {
             merkleDisbutorAddress
         );
 
-        for (let p in results) {
-            for (let leaf in claims) {
-                let leafData = claims[leaf];
+        for (const p in results) {
+            for (const leaf in claims) {
+                const leafData = claims[leaf];
                 if (leafData["amount"] === results[p]) {
                     await MerkleDistributor.claim(
                         leafData["index"],
