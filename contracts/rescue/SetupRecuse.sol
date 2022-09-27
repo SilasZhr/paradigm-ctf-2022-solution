@@ -9,8 +9,8 @@ interface WETH9 is ERC20Like {
 }
 
 contract SetupRescue {
-    
-    WETH9 public constant weth = WETH9(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
+    WETH9 public constant weth =
+        WETH9(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
     MasterChefHelper public immutable mcHelper;
 
     constructor() payable {
@@ -22,5 +22,4 @@ contract SetupRescue {
     function isSolved() external view returns (bool) {
         return weth.balanceOf(address(mcHelper)) == 0;
     }
-
 }

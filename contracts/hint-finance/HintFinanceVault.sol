@@ -3,10 +3,17 @@
 pragma solidity 0.8.16;
 
 interface ERC20Like {
-    function transfer(address dst, uint qty) external returns (bool);
-    function transferFrom(address src, address dst, uint qty) external returns (bool);
-    function approve(address dst, uint qty) external returns (bool);
-    function balanceOf(address who) external view returns (uint);
+    function transfer(address dst, uint256 qty) external returns (bool);
+
+    function transferFrom(
+        address src,
+        address dst,
+        uint256 qty
+    ) external returns (bool);
+
+    function approve(address dst, uint256 qty) external returns (bool);
+
+    function balanceOf(address who) external view returns (uint256);
 }
 
 interface IHintFinanceFlashloanReceiver {
@@ -20,7 +27,6 @@ interface IHintFinanceFlashloanReceiver {
 }
 
 contract HintFinanceVault {
-
     /* ========== STATE VARIABLES ========== */
 
     struct Reward {
@@ -34,7 +40,8 @@ contract HintFinanceVault {
     mapping(address => Reward) public rewardData;
     address[] public rewardTokens;
 
-    mapping(address => mapping(address => uint256)) public userRewardPerTokenPaid;
+    mapping(address => mapping(address => uint256))
+        public userRewardPerTokenPaid;
     mapping(address => mapping(address => uint256)) public rewards;
 
     uint256 public totalSupply;
@@ -63,7 +70,11 @@ contract HintFinanceVault {
 
     /* ========== VIEWS ========== */
 
-    function lastTimeRewardApplicable(address rewardToken) public view returns (uint256) {
+    function lastTimeRewardApplicable(address rewardToken)
+        public
+        view
+        returns (uint256)
+    {
         if (block.timestamp < rewardData[rewardToken].periodFinish) {
             return block.timestamp;
         } else {
@@ -73,19 +84,30 @@ contract HintFinanceVault {
 
     function rewardPerToken(address rewardToken) public view returns (uint256) {
         if (totalSupply == 0) return 0;
-        uint256 newTime = lastTimeRewardApplicable(rewardToken) - rewardData[rewardToken].lastUpdateTime;
-        uint256 newAccumulated = newTime * rewardData[rewardToken].rewardRate / totalSupply;
+        uint256 newTime = lastTimeRewardApplicable(rewardToken) -
+            rewardData[rewardToken].lastUpdateTime;
+        uint256 newAccumulated = (newTime *
+            rewardData[rewardToken].rewardRate) / totalSupply;
         return rewardData[rewardToken].rewardPerTokenStored + newAccumulated;
     }
 
-    function earned(address account, address rewardToken) public view returns (uint256) {
-        uint256 newAccumulated = balanceOf[account] * (rewardPerToken(rewardToken) - userRewardPerTokenPaid[account][rewardToken]);
+    function earned(address account, address rewardToken)
+        public
+        view
+        returns (uint256)
+    {
+        uint256 newAccumulated = balanceOf[account] *
+            (rewardPerToken(rewardToken) -
+                userRewardPerTokenPaid[account][rewardToken]);
         return rewards[account][rewardToken] + newAccumulated;
     }
 
     /* ========== MUTATIVE FUNCTIONS ========== */
 
-    function provideRewardTokens(address rewardToken, uint256 amount) public updateReward(address(0)) {
+    function provideRewardTokens(address rewardToken, uint256 amount)
+        public
+        updateReward(address(0))
+    {
         require(rewardData[rewardToken].rewardsDuration != 0);
         _updateRewardRate(rewardToken, amount);
         ERC20Like(rewardToken).transferFrom(msg.sender, address(this), amount);
@@ -93,18 +115,25 @@ contract HintFinanceVault {
 
     function _updateRewardRate(address rewardToken, uint256 amount) internal {
         if (block.timestamp >= rewardData[rewardToken].periodFinish) {
-            rewardData[rewardToken].rewardRate = amount / rewardData[rewardToken].rewardsDuration;
+            rewardData[rewardToken].rewardRate =
+                amount /
+                rewardData[rewardToken].rewardsDuration;
         } else {
-            uint256 remaining = rewardData[rewardToken].periodFinish - block.timestamp;
+            uint256 remaining = rewardData[rewardToken].periodFinish -
+                block.timestamp;
             uint256 leftover = remaining * rewardData[rewardToken].rewardRate;
-            rewardData[rewardToken].rewardRate = (amount + leftover) / rewardData[rewardToken].rewardsDuration;
+            rewardData[rewardToken].rewardRate =
+                (amount + leftover) /
+                rewardData[rewardToken].rewardsDuration;
         }
         rewardData[rewardToken].lastUpdateTime = block.timestamp;
-        rewardData[rewardToken].periodFinish = block.timestamp + rewardData[rewardToken].rewardsDuration;
+        rewardData[rewardToken].periodFinish =
+            block.timestamp +
+            rewardData[rewardToken].rewardsDuration;
     }
 
     function getRewards() external updateReward(msg.sender) {
-        for (uint i; i < rewardTokens.length; i++) {
+        for (uint256 i; i < rewardTokens.length; i++) {
             address rewardToken = rewardTokens[i];
             uint256 reward = rewards[msg.sender][rewardToken];
             if (reward > 0) {
@@ -114,31 +143,56 @@ contract HintFinanceVault {
         }
     }
 
-    function deposit(uint256 amount) external updateReward(msg.sender) returns (uint256) {
+    function deposit(uint256 amount)
+        external
+        updateReward(msg.sender)
+        returns (uint256)
+    {
         uint256 bal = ERC20Like(underlyingToken).balanceOf(address(this));
-        uint256 shares = totalSupply == 0 ? amount : amount * totalSupply / bal;
-        ERC20Like(underlyingToken).transferFrom(msg.sender, address(this), amount);
+        uint256 shares = totalSupply == 0
+            ? amount
+            : (amount * totalSupply) / bal;
+        ERC20Like(underlyingToken).transferFrom(
+            msg.sender,
+            address(this),
+            amount
+        );
         totalSupply += shares;
         balanceOf[msg.sender] += shares;
         return shares;
     }
 
-    function withdraw(uint256 shares) external updateReward(msg.sender) returns (uint256) {
+    function withdraw(uint256 shares)
+        external
+        updateReward(msg.sender)
+        returns (uint256)
+    {
         uint256 bal = ERC20Like(underlyingToken).balanceOf(address(this));
-        uint256 amount = shares * bal / totalSupply;
+        uint256 amount = (shares * bal) / totalSupply;
         ERC20Like(underlyingToken).transfer(msg.sender, amount);
         totalSupply -= shares;
         balanceOf[msg.sender] -= shares;
         return amount;
     }
 
-    function flashloan(address token, uint256 amount, bytes calldata data) external updateReward(address(0)) {
+    function flashloan(
+        address token,
+        uint256 amount,
+        bytes calldata data
+    ) external updateReward(address(0)) {
         uint256 supplyBefore = totalSupply;
         uint256 balBefore = ERC20Like(token).balanceOf(address(this));
-        bool isUnderlyingOrReward = token == underlyingToken || rewardData[token].rewardsDuration != 0;
+        bool isUnderlyingOrReward = token == underlyingToken ||
+            rewardData[token].rewardsDuration != 0;
 
         ERC20Like(token).transfer(msg.sender, amount);
-        IHintFinanceFlashloanReceiver(msg.sender).onHintFinanceFlashloan(token, factory, amount, isUnderlyingOrReward, data);
+        IHintFinanceFlashloanReceiver(msg.sender).onHintFinanceFlashloan(
+            token,
+            factory,
+            amount,
+            isUnderlyingOrReward,
+            data
+        );
 
         uint256 balAfter = ERC20Like(token).balanceOf(address(this));
         uint256 supplyAfter = totalSupply;
@@ -157,17 +211,16 @@ contract HintFinanceVault {
     /* ========== MODIFIERS ========== */
 
     modifier updateReward(address account) {
-        for (uint i; i < rewardTokens.length; i++) {
+        for (uint256 i; i < rewardTokens.length; i++) {
             address token = rewardTokens[i];
             rewardData[token].rewardPerTokenStored = rewardPerToken(token);
             rewardData[token].lastUpdateTime = lastTimeRewardApplicable(token);
             if (account != address(0)) {
                 rewards[account][token] = earned(account, token);
-                userRewardPerTokenPaid[account][token] = rewardData[token].rewardPerTokenStored;
+                userRewardPerTokenPaid[account][token] = rewardData[token]
+                    .rewardPerTokenStored;
             }
         }
         _;
     }
 }
-
-

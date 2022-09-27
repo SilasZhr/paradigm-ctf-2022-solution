@@ -1,27 +1,30 @@
-import { extractLinkReferences } from '@openzeppelin/upgrades-core';
-import { parseTransaction } from 'ethers/lib/utils';
-import { ethers } from 'hardhat';
-import { boolean } from 'hardhat/internal/core/params/argumentTypes';
-import {merkleRoot, tokenTotal, claims} from  '../../contracts/merkledrop/tree.json';
-import { BigNumber, utils} from 'ethers';
-import { promise } from 'sinon';
+import { extractLinkReferences } from "@openzeppelin/upgrades-core";
+import { parseTransaction } from "ethers/lib/utils";
+import { ethers } from "hardhat";
+import { boolean } from "hardhat/internal/core/params/argumentTypes";
+import {
+    merkleRoot,
+    tokenTotal,
+    claims,
+} from "../../contracts/merkledrop/tree.json";
+import { BigNumber, utils } from "ethers";
+import { promise } from "sinon";
 
 //lenth of uint96 in hexString
-const amountLenth = 24; 
+const amountLenth = 24;
 let result = [];
 
 export async function findNode() {
-    
     let node = [];
     let knownAmounts = [];
     for (let leaf in claims) {
-        knownAmounts.push(BigNumber.from(claims[leaf]['amount']))
-        let proof: string[] = claims[leaf]['proof'];
+        knownAmounts.push(BigNumber.from(claims[leaf]["amount"]));
+        let proof: string[] = claims[leaf]["proof"];
         proof = proof.slice(0);
-        for (let count in proof){
-            let entry = proof[count]
-            if (await validAmount(entry)){
-                if ( !node.includes(entry) ){
+        for (let count in proof) {
+            let entry = proof[count];
+            if (await validAmount(entry)) {
+                if (!node.includes(entry)) {
                     node.push(entry);
                 }
             }
@@ -32,62 +35,58 @@ export async function findNode() {
         let entry = node[count];
         amounts.push(entry.substr(-amountLenth));
     }
-    amounts = amounts.map(x => BigNumber.from('0x'+x));
-    amounts = amounts.concat(knownAmounts.map(x => BigNumber.from(x)));
+    amounts = amounts.map((x) => BigNumber.from("0x" + x));
+    amounts = amounts.concat(knownAmounts.map((x) => BigNumber.from(x)));
     amounts = amounts.sort(compareFn).reverse();
     //console.log(BigNumber.from(tokenTotal).sub(amounts[0]) );
-    result = await dynamicSearch(BigNumber.from(tokenTotal).sub(amounts[0]), amounts.slice(1));
+    result = await dynamicSearch(
+        BigNumber.from(tokenTotal).sub(amounts[0]),
+        amounts.slice(1)
+    );
 
     console.log(node);
     return node;
-
 }
 
-async function dynamicSearch(total: BigNumber, amounts: BigNumber[]): Promise<BigNumber[]>{
+async function dynamicSearch(
+    total: BigNumber,
+    amounts: BigNumber[]
+): Promise<BigNumber[]> {
     let tmp: BigNumber[] = [];
-    if (amounts.length === 0){
+    if (amounts.length === 0) {
         return [];
     }
-    for (let count in amounts){
+    for (let count in amounts) {
         let amount = amounts[count];
-        if (amount.gt(total)){
+        if (amount.gt(total)) {
             continue;
-        }
-        else if (total.eq(amount)) {
+        } else if (total.eq(amount)) {
             tmp.push(amount);
-            return tmp
-        }
-        else if (amounts.length === 1 && !total.eq(amount)) {
+            return tmp;
+        } else if (amounts.length === 1 && !total.eq(amount)) {
             return [];
-        }
-        else {
+        } else {
             tmp.push(amount);
             let res = dynamicSearch(total.sub(amount), amounts.slice(1));
-            if (res === []){
+            if (res === []) {
                 tmp = tmp.slice(-1);
-                continue
-            }
-            else {
+                continue;
+            } else {
                 return tmp.concat(res);
             }
         }
-
     }
-
 }
 
-
-async function validAmount(entry: string): Promise<boolean>{
+async function validAmount(entry: string): Promise<boolean> {
     let tmp = entry.substr(-amountLenth);
-    return !BigNumber.from('0x' + tmp).gt(BigNumber.from(tokenTotal));
+    return !BigNumber.from("0x" + tmp).gt(BigNumber.from(tokenTotal));
 }
 
-function compareFn(a: BigNumber , b: BigNumber){
-    return a.gte(b)? 1 : -1;
+function compareFn(a: BigNumber, b: BigNumber) {
+    return a.gte(b) ? 1 : -1;
 }
 
-export function getResult(){
+export function getResult() {
     return result;
 }
-
-

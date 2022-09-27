@@ -22,7 +22,11 @@ contract Token is ERC20Like {
         return transferFrom(msg.sender, to, amount);
     }
 
-    function transferFrom(address from, address to, uint256 amount) public returns (bool) {
+    function transferFrom(
+        address from,
+        address to,
+        uint256 amount
+    ) public returns (bool) {
         if (from != msg.sender) {
             allowance[from][to] -= amount;
         }
@@ -33,16 +37,17 @@ contract Token is ERC20Like {
 }
 
 contract SetupMerkleDrop {
-
     Token public immutable token;
     MerkleDistributor public immutable merkleDistributor;
 
     constructor() payable {
         token = new Token();
-        uint256 airdropAmount = 75000 * 10 ** 18;
+        uint256 airdropAmount = 75000 * 10**18;
         merkleDistributor = new MerkleDistributor(
-            address(token), 
-            bytes32(0x5176d84267cd453dad23d8f698d704fc7b7ee6283b5131cb3de77e58eb9c3ec3)
+            address(token),
+            bytes32(
+                0x5176d84267cd453dad23d8f698d704fc7b7ee6283b5131cb3de77e58eb9c3ec3
+            )
         );
         token.transfer(address(merkleDistributor), airdropAmount);
     }
