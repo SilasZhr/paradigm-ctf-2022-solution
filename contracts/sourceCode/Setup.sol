@@ -4,7 +4,7 @@ pragma solidity 0.8.16;
 
 import "./Challenge.sol";
 
-contract Setup {
+contract SetupSourceCode {
     Challenge public challenge;
 
     constructor() {
