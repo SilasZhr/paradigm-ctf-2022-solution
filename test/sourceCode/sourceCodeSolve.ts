@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 import { expect } from "chai";
 
-describe("[Challenge] Random", function () {
+describe("[Challenge] SourceCode", function () {
     let deployer, attacker;
 
     before(async function () {
@@ -9,7 +9,7 @@ describe("[Challenge] Random", function () {
         [deployer, attacker] = await ethers.getSigners();
 
         const SetupFactory = await ethers.getContractFactory(
-            "SetupRandom",
+            "SetupSourceCode",
             deployer
         );
         this.challenge = await SetupFactory.deploy();
@@ -19,13 +19,15 @@ describe("[Challenge] Random", function () {
 
     it("Exploit", async function () {
         /** CODE YOUR EXPLOIT HERE */
-        const RandomFactory = await ethers.getContractFactory(
-            "Random",
+        const ChallengeFactory = await ethers.getContractFactory(
+            "Challenge",
             attacker
         );
-        const RandomAddress = await this.challenge.random();
-        const Random = RandomFactory.attach(RandomAddress);
-        await Random.solve(4);
+        const ChallengeAddress = await this.challenge.challenge();
+        const Challenge = ChallengeFactory.attach(ChallengeAddress);
+        const code =
+            "0x7f80607f60005360015260215260416000f300000000000000000000000000000080607f60005360015260215260416000f3000000000000000000000000000000";
+        await Challenge.solve(code);
     });
 
     after(async function () {
