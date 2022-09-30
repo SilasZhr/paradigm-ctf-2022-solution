@@ -1,0 +1,13 @@
+PUSH32 0x80607f60005360015260215260416000f3000000000000000000000000000000
+DUP1           
+PUSH1 0x7f       
+PUSH1 0x00       
+MSTORE8                      
+PUSH1 0x01       
+MSTORE            
+PUSH1 0x21        
+MSTORE          
+PUSH1 0x41       
+PUSH1 0x00       
+RETURN         
+                

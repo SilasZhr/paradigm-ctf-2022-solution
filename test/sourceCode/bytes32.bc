@@ -1,0 +1,24 @@
+                ##stack                         ##mem
+
+PUSH32  X         [X]
+
+DUP1             [X, X]
+
+
+
+PUSH 0x7f        [0x7f,X,X]
+PUSH 0x00        [0x00, 0x7f, X,X]
+MSTORE8                                    [  0x7f ]
+
+
+PUSH 0x01        [0x01, X, X]
+MSTORE            [X]                     [  0x7f, X  ]
+
+PUSH 0x21        [0x21, X]
+MSTORE           []                       [  0x7f, X, X   ]
+
+PUSH1 0x41       [0x41]                    [  0x7f, X, X   ]
+PUSH1 0x00       [0x00, 0x41]              [  0x7f, X, X   ]
+              //[offset, length]                  
+RETURN           [0x00, 0x41]              [  0x7f, X, X   ]
+                
